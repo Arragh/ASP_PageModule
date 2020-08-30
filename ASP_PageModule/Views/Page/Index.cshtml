@@ -1,2 +1,14 @@
-﻿<h2>Page/Index</h2>
+﻿@model Dictionary<Guid, string>
+
+<h2>Page/Index</h2>
 @Html.ActionLink("Создать страницу", "AddPage", "Page")
+<br />
+<br />
+<br />
+
+@*@Html.ActionLink("Тестировать страницу", "ViewPage", "Page", new { pageId = "13d57771-4109-454e-8951-33d34182d9ab" })*@
+
+@foreach (var item in Model)
+{
+    @Html.ActionLink(item.Value, "ViewPage", "Page", new { pageId = item.Key })<br />
+}
