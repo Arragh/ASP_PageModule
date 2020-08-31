@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace ASP_PageModule.ViewModels.Page
 {
-    public class AddPageViewModel
+    public class EditPageViewModel
     {
+        public Guid PageId { get; set; }
+
         [Required(ErrorMessage = "Требуется ввечсти заголовок")]
         [Display(Name = "Заголовок страницы")]
         [StringLength(100, ErrorMessage = "Заголовок должен быть от {1} до {2} символов.", MinimumLength = 4)]

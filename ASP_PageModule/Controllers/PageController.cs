@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Permissions;
 using System.Threading.Tasks;
 using ASP_PageModule.Models.Page;
 using ASP_PageModule.Models.Service;
@@ -21,14 +22,14 @@ namespace ASP_PageModule.Controllers
         public async Task<IActionResult> Index()
         {
             List<Page> pages = await cmsDB.Pages.ToListAsync();
-            Dictionary<Guid, string> model = new Dictionary<Guid, string>();
+            Dictionary<Guid, string> dictionary = new Dictionary<Guid, string>();
             foreach (var page in pages)
             {
-                model.Add(page.Id, page.PageTitle);
+                dictionary.Add(page.Id, page.PageTitle);
             }
-            ViewBag.Pages = model;
+            //ViewBag.Pages = model;
 
-            return View(model);
+            return View(dictionary);
         }
 
         #region Создание страницы [GET]
@@ -49,7 +50,7 @@ namespace ASP_PageModule.Controllers
                 {
                     Id = Guid.NewGuid(),
                     PageTitle = model.PageTitle,
-                    PageBody = model.PageBody,
+                    PageBody = SpecSymbolsPOST(model.PageBody),
                     PageDate = DateTime.Now,
                     UserName = "Mnemonic" // Хардкод. Потом обязательно заменить !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 };
@@ -64,20 +65,92 @@ namespace ASP_PageModule.Controllers
         }
         #endregion
 
-        #region Просмотр страницы
-        public async Task<IActionResult> ViewPage(Guid pageId)
+        #region Редактирование страницы [GET]
+        [HttpGet]
+        public async Task<IActionResult> EditPage(Guid pageId)
         {
             Page page = await cmsDB.Pages.FirstAsync(p => p.Id == pageId);
 
-            ViewPageViewModel model = new ViewPageViewModel()
+            EditPageViewModel model = new EditPageViewModel()
             {
+                PageId = pageId,
                 PageTitle = page.PageTitle,
-                PageBody = page.PageBody
+                PageBody = SpecSymbolsToGET(page.PageBody)
             };
 
             return View(model);
         }
         #endregion
 
+        #region Редактирование страницы [POST]
+        [HttpPost]
+        public async Task<IActionResult> EditPage(EditPageViewModel model)
+        {
+            Page page = await cmsDB.Pages.FirstAsync(p => p.Id == model.PageId);
+
+            page.PageTitle = model.PageTitle;
+            page.PageBody = SpecSymbolsPOST(model.PageBody);
+
+            cmsDB.Pages.Update(page);
+            await cmsDB.SaveChangesAsync();
+
+            return RedirectToAction("ViewPage", "Page", new { pageId = page.Id });
+        }
+        #endregion
+
+        // Всё что ниже, потомн адо будет вынести куда-то в отдельный класс-хелпер, для использования другими модулями
+
+        #region Просмотр страницы
+        public async Task<IActionResult> ViewPage(Guid pageId)
+        {
+            ViewBag.PageId = pageId;
+
+            Page page = await cmsDB.Pages.FirstAsync(p => p.Id == pageId);
+
+            ViewPageViewModel model = new ViewPageViewModel()
+            {
+                PageTitle = page.PageTitle,
+                PageBody = BbCode(page.PageBody)
+            };
+
+            return View(model);
+        }
+        #endregion
+
+        #region Замена опасных символов
+        string SpecSymbolsPOST(string text)
+        {
+            return text.Replace("&", "&amp;")   // Очень важно, чтобы этот был в самом начале
+                       .Replace("\"", "&quot;")
+                       .Replace("'", "&#x27;")
+                       .Replace("<", "&lt;")
+                       .Replace(">", "&gt;")
+                       .Replace("\r\n", "<br>")
+                       .Replace("\\", "&#x5C")
+                       .Replace(" ", "&nbsp;");
+        }
+
+        string SpecSymbolsToGET(string text)
+        {
+            return text.Replace("&amp;", "&")
+                       .Replace("&quot;", "\"")
+                       .Replace("&#x27;", "'")
+                       .Replace("&lt;", "<")
+                       .Replace("&gt;", ">")
+                       .Replace("&#x5C", "\\")
+                       .Replace("<br>", "\r\n")
+                       .Replace("&nbsp;", " ");
+        }
+        #endregion
+
+        #region BB-Code
+        string BbCode(string text)
+        {
+            return text.Replace("[b]", "<b>")
+                       .Replace("[/b]", "</b>")
+                       .Replace("[i]", "<i>")
+                       .Replace("[/i]", "</i>");
+        }
+        #endregion
     }
 }

@@ -1,4 +1,6 @@
 ﻿@model ASP_PageModule.ViewModels.Page.ViewPageViewModel
 
+@Html.ActionLink("Редактировать", "EditPage", "Page", new { pageId = ViewBag.PageId })
+
 <h3>@Model.PageTitle</h3>
-<p>@Model.PageBody</p>
+<p>@Html.Raw(Model.PageBody)</p>
