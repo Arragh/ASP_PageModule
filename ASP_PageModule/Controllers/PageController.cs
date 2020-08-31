@@ -98,7 +98,7 @@ namespace ASP_PageModule.Controllers
         }
         #endregion
 
-        // Всё что ниже, потомн адо будет вынести куда-то в отдельный класс-хелпер, для использования другими модулями
+        // Всё что ниже, потом надо будет вынести куда-то в отдельный класс-хелпер, для использования другими модулями
 
         #region Просмотр страницы
         public async Task<IActionResult> ViewPage(Guid pageId)
@@ -149,7 +149,9 @@ namespace ASP_PageModule.Controllers
             return text.Replace("[b]", "<b>")
                        .Replace("[/b]", "</b>")
                        .Replace("[i]", "<i>")
-                       .Replace("[/i]", "</i>");
+                       .Replace("[/i]", "</i>")
+                       .Replace("[u]", "<u>")
+                       .Replace("[/u]", "</u>");
         }
         #endregion
     }
