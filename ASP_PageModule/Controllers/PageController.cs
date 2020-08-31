@@ -27,7 +27,6 @@ namespace ASP_PageModule.Controllers
             {
                 dictionary.Add(page.Id, page.PageTitle);
             }
-            //ViewBag.Pages = model;
 
             return View(dictionary);
         }
@@ -98,8 +97,6 @@ namespace ASP_PageModule.Controllers
         }
         #endregion
 
-        // Всё что ниже, потом надо будет вынести куда-то в отдельный класс-хелпер, для использования другими модулями
-
         #region Просмотр страницы
         public async Task<IActionResult> ViewPage(Guid pageId)
         {
@@ -113,9 +110,13 @@ namespace ASP_PageModule.Controllers
                 PageBody = BbCode(page.PageBody)
             };
 
+            ViewBag.Title = page.PageTitle;
+
             return View(model);
         }
         #endregion
+
+        // Всё что ниже, потом надо будет вынести куда-то в отдельный файл, для использования другими модулями
 
         #region Замена опасных символов
         string SpecSymbolsPOST(string text)
