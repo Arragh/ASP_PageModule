@@ -49,7 +49,7 @@ namespace ASP_PageModule.Controllers
                 {
                     Id = Guid.NewGuid(),
                     PageTitle = model.PageTitle,
-                    PageBody = SpecSymbolsPOST(model.PageBody),
+                    PageBody = SpecSymbolsToView(model.PageBody), // Замена символов на их безопасные шестнадцатеричные значения
                     PageDate = DateTime.Now,
                     UserName = "Mnemonic" // Хардкод. Потом обязательно заменить !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 };
@@ -57,7 +57,7 @@ namespace ASP_PageModule.Controllers
                 await cmsDB.Pages.AddAsync(page);
                 await cmsDB.SaveChangesAsync();
 
-                return RedirectToAction("Index", "Page");
+                return RedirectToAction("ViewPage", "Page", new { pageId = page.Id });
             }
 
             return View(model);
@@ -74,7 +74,7 @@ namespace ASP_PageModule.Controllers
             {
                 PageId = pageId,
                 PageTitle = page.PageTitle,
-                PageBody = SpecSymbolsToGET(page.PageBody)
+                PageBody = SpecSymbolsToEdit(page.PageBody) // Замена десятичных значений на символы, для удобства
             };
 
             return View(model);
@@ -88,7 +88,7 @@ namespace ASP_PageModule.Controllers
             Page page = await cmsDB.Pages.FirstAsync(p => p.Id == model.PageId);
 
             page.PageTitle = model.PageTitle;
-            page.PageBody = SpecSymbolsPOST(model.PageBody);
+            page.PageBody = SpecSymbolsToView(model.PageBody); // Замена символов на их безопасные шестнадцатеричные значения 
 
             cmsDB.Pages.Update(page);
             await cmsDB.SaveChangesAsync();
@@ -116,12 +116,29 @@ namespace ASP_PageModule.Controllers
         }
         #endregion
 
+        #region Удаление страницы
+        public async Task<IActionResult> DeletePage(Guid pageId, bool isChecked)
+        {
+            if (isChecked)
+            {
+                Page page = new Page { Id = pageId };
+
+                cmsDB.Pages.Remove(page);
+                await cmsDB.SaveChangesAsync();
+
+                return RedirectToAction("Index", "Page");
+            }
+
+            return RedirectToAction("Index", "Page");
+        }
+        #endregion
+
         // Всё что ниже, потом надо будет вынести куда-то в отдельный файл, для использования другими модулями
 
         #region Замена опасных символов
-        string SpecSymbolsPOST(string text)
+        string SpecSymbolsToView(string text)
         {
-            return text.Replace("&", "&amp;")   // Очень важно, чтобы этот был в самом начале
+            return text.Replace("&", "&amp;")   // Очень важно, чтобы замена & была в самом начале
                        .Replace("\"", "&quot;")
                        .Replace("'", "&#x27;")
                        .Replace("<", "&lt;")
@@ -131,7 +148,7 @@ namespace ASP_PageModule.Controllers
                        .Replace(" ", "&nbsp;");
         }
 
-        string SpecSymbolsToGET(string text)
+        string SpecSymbolsToEdit(string text)
         {
             return text.Replace("&amp;", "&")
                        .Replace("&quot;", "\"")
