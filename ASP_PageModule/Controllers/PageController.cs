@@ -164,13 +164,18 @@ namespace ASP_PageModule.Controllers
         #region BB-Code
         string BbCode(string text)
         {
-            return text.Replace("[b]", "<b>")
+            return text
+                       // Жирный текст
+                       .Replace("[b]", "<b>")
                        .Replace("[/b]", "</b>")
+                       // Наклонный текст
                        .Replace("[i]", "<i>")
                        .Replace("[/i]", "</i>")
+                       // Подчеркнутый текст
                        .Replace("[u]", "<u>")
                        .Replace("[/u]", "</u>")
-                       .Replace("[img]", "<img style=\"max-width:1000px; height:auto;\" src=")
+                       // Вставка изображения ссылкой
+                       .Replace("[img]", "<img style=\"max-width:1000px; height:auto;\" src=") // max-width надо как-нибудь привязать к ширине таблицы !!!!!!!!!!!!!!!!!!!!!!!
                        .Replace("[/img]", ">");
         }
         #endregion
