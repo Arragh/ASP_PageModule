@@ -11,9 +11,7 @@
     </div>
     <div>
         <label asp-for="PageBody"></label><br />
-        <input type="button" value="Жирный" onclick="BBcode_1()">
-        <input type="button" value="Курсив" onclick="BBcode_2()">
-        <input type="button" value="Подчеркнутый" onclick="BBcode_3()">
+        @await Html.PartialAsync("BBcodeButtons")
         <br />
         <textarea id="textarea" asp-for="PageBody" rows="30" cols="100"></textarea>
         @Html.ValidationMessageFor(p => p.PageBody)
@@ -27,6 +25,6 @@
 {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
-        await Html.RenderPartialAsync("_BBcodeScriptsPartial");
+        await Html.RenderPartialAsync("_BBcodeScript");
      }
 }

@@ -169,7 +169,9 @@ namespace ASP_PageModule.Controllers
                        .Replace("[i]", "<i>")
                        .Replace("[/i]", "</i>")
                        .Replace("[u]", "<u>")
-                       .Replace("[/u]", "</u>");
+                       .Replace("[/u]", "</u>")
+                       .Replace("[img]", "<img style=\"max-width:1000px; height:auto;\" src=")
+                       .Replace("[/img]", ">");
         }
         #endregion
     }
